@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FNF: THE AUTHOR — UNINVITED</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: #050307; color: white;
+  font-family: monospace; text-align: center;
+  overflow: hidden;
+}
+#game {
+  width: min(900px, 100vw); height: 100vh; max-height: 700px;
+  margin: auto; position: relative; overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 75%, #440b18 0%, #17030c 40%, #030205 85%);
+  border: 2px solid #651022;
+}
+h1 {
+  color: #ff243f; letter-spacing: 5px;
+  text-shadow: 0 0 15px red; margin: 18px 0 5px;
+}
+#subtitle { color: #aaa; font-size: 12px; }
+#author {
+  position: absolute; top: 19%; left: 50%;
+  transform: translateX(-50%); color: #080609;
+  font-size: clamp(60px, 15vw, 125px);
+  text-shadow: 0 0 12px #e20b31, 0 0 35px #a00022;
+  animation: stare 2.5s infinite alternate;
+}
+@keyframes stare {
+  from { filter: brightness(.45); }
+  to { filter: brightness(1.6); }
+}
+#stats {
+  position: absolute; top: 35%; width: 100%;
+  display: flex; justify-content: space-around;
+  font-size: 14px; color: #ffb7c2;
+}
+#health {
+  height: 10px; width: 75%; margin: 6px auto;
+  background: #3a101b; border: 1px solid #a92743;
+}
+#healthFill { height: 100%; width: 100%; background: #ed2445; }
+#lanes {
+  position: absolute; top: 43%; bottom: 0; left: 5%;
+  width: 90%; display: grid; grid-template-columns: repeat(4, 1fr);
+}
+.lane {
+  position: relative; border-left: 1px solid #46101d;
+  border-right: 1px solid #46101d; background: #ffffff05;
+}
+.target {
+  position: absolute; top: 74%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 46px; height: 46px; border: 3px solid #ff4059;
+  border-radius: 9px; color: white; font-size: 26px;
+  display: grid; place-items: center;
+  text-shadow: 0 0 10px red; box-shadow: 0 0 12px #a00026;
+}
+.note {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  width: 42px; height: 42px; border-radius: 8px;
+  border: 3px solid white; display: grid; place-items: center;
+  font-size: 24px; background: #b70d2c;
+  box-shadow: 0 0 12px #ff2149;
+}
+#message {
+  position: absolute; top: 57%; width: 100%;
+  color: white; font-size: 18px; font-weight: bold;
+  text-shadow: 0 0 12px red; pointer-events: none;
+}
+#start {
+  position: absolute; z-index: 5; top: 0; left: 0;
+  width: 100%; height: 100%; background: #050307eF;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 18px;
+}
+button {
+  padding: 14px 28px; background: #8f0b25; color: white;
+  border: 2px solid #ff4059; font: bold 16px monospace;
+  cursor: pointer;
+}
+button:hover { background: #c41739; }
+#help { color: #aaa; font-size: 12px; padding: 12px; }
+</style>
+</head>
+<body>
+<div id="game">
+  <h1>THE AUTHOR</h1>
+  <div id="subtitle">WEEK 1 // THE ARRIVAL</div>
+  <div id="author">◉</div>
+  <div id="stats">
+    <span>UNINVITED</span><span id="score">SCORE: 0</span>
+    <span id="combo">COMBO: 0</span>
+  </div>
+  <div id="health"><div id="healthFill"></div></div>
+  <div id="lanes"></div>
+  <div id="message"></div>
+  <div id="start">
+    <h1>UNINVITED</h1>
+    <p>A presence is watching.</p>
+    <button id="play">BEGIN THE NIGHTMARE</button>
+    <p id="help">ARROW KEYS or A / S / W / D to hit notes</p>
+  </div>
+</div>
+<script>
+const lanesEl = document.getElementById("lanes");
+const arrows = ["←","↓","↑","→"];
+const keys = ["ArrowLeft","ArrowDown","ArrowUp","ArrowRight"];
+const altKeys = ["a","s","w","d"];
+const lanes = [];
+const notes = [];
+let running = false, score = 0, combo = 0, health = 100;
+let startTime = 0, lastSpawn = 0, lastFrame = 0, raf = 0;
+let messageUntil = 0;
+
+arrows.forEach((arrow,i) => {
+  const lane = document.createElement("div");
+  lane.className = "lane";
+  const target = document.createElement("div");
+  target.className = "target";
+  target.textContent = arrow;
+  lane.appendChild(target);
+  lanesEl.appendChild(lane);
+  lanes.push(lane);
+});
+
+function say(text, duration=650) {
+  document.getElementById("message").textContent = text;
+  messageUntil = performance.now() + duration;
+}
+
+function updateStats() {
+  document.getElementById("score").textContent = "SCORE: " + score;
+  document.getElementById("combo").textContent = "COMBO: " + combo;
+  document.getElementById("healthFill").style.width = health + "%";
+}
+
+function spawnNote(laneIndex, time) {
+  const el = document.createElement("div");
+  el.className = "note";
+  el.textContent = arrows[laneIndex];
+  lanes[laneIndex].appendChild(el);
+  notes.push({el, lane: laneIndex, time, hit: false});
+}
+
+function hit(laneIndex) {
+  if (!running) return;
+  let best = null, distance = Infinity;
+  for (const note of notes) {
+    if (note.lane !== laneIndex || note.hit) continue;
+    const d = Math.abs(note.time - performance.now());
+    if (d < distance) { distance = d; best = note; }
+  }
+  if (best && distance < 180) {
+    best.hit = true;
+    best.el.remove();
+    score += distance < 75 ? 350 : distance < 130 ? 200 : 100;
+    combo++;
+    health = Math.min(100, health + 1);
+    say(distance < 75 ? "SICK!" : distance < 130 ? "GOOD!" : "OK!");
+    updateStats();
+  } else {
+    combo = 0;
+    say("MISS");
+    updateStats();
+  }
+}
+
+function frame(now) {
+  if (!running) return;
+  const dt = Math.min(50, now - (lastFrame || now));
+  lastFrame = now;
+  const elapsed = now - startTime;
+
+  if (elapsed - lastSpawn > 620) {
+    const laneIndex = Math.floor(Math.random() * 4);
+    spawnNote(laneIndex, now + 1150);
+    lastSpawn = elapsed;
+  }
+
+  for (let i = notes.length - 1; i >= 0; i--) {
+    const note = notes[i];
+    const targetY = lanes[note.lane].clientHeight * .74;
+    const travel = 1150 - (note.time - now);
+    note.el.style.top = (targetY - 21 - 0.74 * 0 + travel * .45) + "px";
+
+    if (now > note.time + 180 && !note.hit) {
+      note.el.remove();
+      notes.splice(i,1);
+      combo = 0;
+      health = Math.max(0, health - 7);
+      say("MISS");
+      updateStats();
+    }
+  }
+
+  if (now > messageUntil) document.getElementById("message").textContent = "";
+  if (health <= 0) {
+    running = false;
+    document.getElementById("start").style.display = "flex";
+    document.querySelector("#start h1").textContent = "YOU WERE ERASED";
+    document.querySelector("#start p").textContent = "The Author is still watching.";
+    document.getElementById("play").textContent = "TRY AGAIN";
+    return;
+  }
+  if (elapsed >= 45000) {
+    running = false;
+    document.getElementById("start").style.display = "flex";
+    document.querySelector("#start h1").textContent = "THE FIRST PAGE";
+    document.querySelector("#start p").textContent = "You survived... for now.";
+    document.getElementById("play").textContent = "PLAY AGAIN";
+    return;
+  }
+  raf = requestAnimationFrame(frame);
+}
+
+function begin() {
+  cancelAnimationFrame(raf);
+  notes.splice(0).forEach(n => n.el.remove());
+  score = 0; combo = 0; health = 100;
+  lastSpawn = 0; lastFrame = 0;
+  startTime = performance.now();
+  running = true;
+  updateStats();
+  document.getElementById("start").style.display = "none";
+  say("DON'T LOOK AWAY.", 1800);
+  raf = requestAnimationFrame(frame);
+}
+
+document.getElementById("play").addEventListener("click", begin);
+document.addEventListener("keydown", e => {
+  let index = keys.indexOf(e.key);
+  if (index < 0) index = altKeys.indexOf(e.key.toLowerCase());
+  if (index >= 0) { e.preventDefault(); hit(index); }
+});
+</script>
+</body>
+</html>
