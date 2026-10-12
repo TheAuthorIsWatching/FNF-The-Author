@@ -1,243 +1,166 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FNF: THE AUTHOR — UNINVITED</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FNF: THE AUTHOR</title>
 <style>
-* { box-sizing: border-box; }
-body {
-  margin: 0; background: #050307; color: white;
-  font-family: monospace; text-align: center;
-  overflow: hidden;
-}
-#game {
-  width: min(900px, 100vw); height: 100vh; max-height: 700px;
-  margin: auto; position: relative; overflow: hidden;
-  background:
-    radial-gradient(ellipse at 50% 75%, #440b18 0%, #17030c 40%, #030205 85%);
-  border: 2px solid #651022;
-}
-h1 {
-  color: #ff243f; letter-spacing: 5px;
-  text-shadow: 0 0 15px red; margin: 18px 0 5px;
-}
-#subtitle { color: #aaa; font-size: 12px; }
-#author {
-  position: absolute; top: 19%; left: 50%;
-  transform: translateX(-50%); color: #080609;
-  font-size: clamp(60px, 15vw, 125px);
-  text-shadow: 0 0 12px #e20b31, 0 0 35px #a00022;
-  animation: stare 2.5s infinite alternate;
-}
-@keyframes stare {
-  from { filter: brightness(.45); }
-  to { filter: brightness(1.6); }
-}
-#stats {
-  position: absolute; top: 35%; width: 100%;
-  display: flex; justify-content: space-around;
-  font-size: 14px; color: #ffb7c2;
-}
-#health {
-  height: 10px; width: 75%; margin: 6px auto;
-  background: #3a101b; border: 1px solid #a92743;
-}
-#healthFill { height: 100%; width: 100%; background: #ed2445; }
-#lanes {
-  position: absolute; top: 43%; bottom: 0; left: 5%;
-  width: 90%; display: grid; grid-template-columns: repeat(4, 1fr);
-}
-.lane {
-  position: relative; border-left: 1px solid #46101d;
-  border-right: 1px solid #46101d; background: #ffffff05;
-}
-.target {
-  position: absolute; top: 74%; left: 50%;
-  transform: translate(-50%,-50%);
-  width: 46px; height: 46px; border: 3px solid #ff4059;
-  border-radius: 9px; color: white; font-size: 26px;
-  display: grid; place-items: center;
-  text-shadow: 0 0 10px red; box-shadow: 0 0 12px #a00026;
-}
-.note {
-  position: absolute; left: 50%; transform: translateX(-50%);
-  width: 42px; height: 42px; border-radius: 8px;
-  border: 3px solid white; display: grid; place-items: center;
-  font-size: 24px; background: #b70d2c;
-  box-shadow: 0 0 12px #ff2149;
-}
-#message {
-  position: absolute; top: 57%; width: 100%;
-  color: white; font-size: 18px; font-weight: bold;
-  text-shadow: 0 0 12px red; pointer-events: none;
-}
-#start {
-  position: absolute; z-index: 5; top: 0; left: 0;
-  width: 100%; height: 100%; background: #050307eF;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 18px;
-}
-button {
-  padding: 14px 28px; background: #8f0b25; color: white;
-  border: 2px solid #ff4059; font: bold 16px monospace;
-  cursor: pointer;
-}
-button:hover { background: #c41739; }
-#help { color: #aaa; font-size: 12px; padding: 12px; }
+:root{--red:#e32636;--dark:#09070b;--panel:#171219;--white:#f6f1f5;--muted:#a9a0ad}
+*{box-sizing:border-box}
+body{margin:0;background:#050407;color:var(--white);font-family:Arial,Helvetica,sans-serif;overflow:hidden}
+button{font:inherit;cursor:pointer}
+#app{min-height:100vh;display:grid;place-items:center;padding:12px;background:radial-gradient(ellipse at 50% 45%,#351019 0%,#100910 48%,#030305 100%)}
+#frame{position:relative;width:min(100%,1100px);aspect-ratio:16/9;max-height:94vh;overflow:hidden;border:2px solid #68202d;box-shadow:0 0 35px #7c102c55;background:#0b080d}
+#grain{position:absolute;inset:0;pointer-events:none;opacity:.14;background-image:repeating-linear-gradient(0deg,transparent 0 3px,#fff 4px,transparent 5px);mix-blend-mode:overlay;z-index:10}
+.screen{position:absolute;inset:0;display:none}
+.screen.active{display:flex}
+#menu{align-items:center;justify-content:center;flex-direction:column;background:linear-gradient(180deg,#100b14dd,#070609f5),radial-gradient(ellipse at center,#70111d,#070609)}
+.eyebrow{font-size:clamp(10px,1.3vw,15px);letter-spacing:.35em;color:#e68b97;text-transform:uppercase}
+.logo{margin:.08em 0;color:#f5eaf0;font-weight:1000;font-size:clamp(48px,9vw,105px);letter-spacing:-.07em;line-height:.95;text-shadow:5px 5px 0 #7e1427,0 0 28px #f21e3b55;transform:skew(-4deg)}
+.subtitle{margin:10px 0 24px;color:#c5b4c3;letter-spacing:.22em;font-size:clamp(10px,1.4vw,15px)}
+.menuButtons{display:grid;gap:9px;width:min(310px,70%)}
+.menuBtn{border:1px solid #792536;background:#160d15;color:#f8edf2;padding:12px 18px;text-align:left;letter-spacing:.1em;font-weight:800;transition:.12s;box-shadow:inset 3px 0 #4a1221}
+.menuBtn:before{content:"▶";display:inline-block;color:#ed344c;margin-right:12px;opacity:0}
+.menuBtn:hover,.menuBtn:focus{outline:none;transform:translateX(4px);background:#35111f;border-color:#f13b52}
+.menuBtn:hover:before,.menuBtn:focus:before{opacity:1}
+.small{font-size:11px;color:#8d818f;letter-spacing:.08em;margin-top:19px;text-align:center}
+#subMenu{align-items:center;justify-content:center;flex-direction:column;padding:24px;background:linear-gradient(135deg,#100b14,#260d18)}
+.panelTitle{font-size:clamp(28px,5vw,52px);font-weight:1000;letter-spacing:-.04em;text-shadow:3px 3px #781629;margin:0 0 8px}
+.panelText{max-width:620px;text-align:center;color:#c8bdc9;line-height:1.5;margin:0 0 22px}
+.subButtons{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.actionBtn{background:#1b101a;border:1px solid #9d2a40;color:#fff;padding:11px 18px;font-weight:800}
+.actionBtn:hover{background:#4b1424}
+#game{background:linear-gradient(#120b15,#08070c);flex-direction:column}
+.hud{height:15%;min-height:56px;display:flex;align-items:center;justify-content:space-between;padding:10px 3%;gap:12px;background:#08060bd9;border-bottom:1px solid #4c1b2a}
+.trackName{font-weight:900;letter-spacing:.08em;font-size:clamp(11px,1.6vw,17px)}
+.trackName span{display:block;color:#a79aa9;font-size:.72em;font-weight:500;margin-top:4px}
+.stats{text-align:right;font-variant-numeric:tabular-nums;color:#e8dce5;font-size:clamp(10px,1.5vw,15px);line-height:1.6}
+#stage{position:relative;flex:1;min-height:0;overflow:hidden;background:radial-gradient(ellipse at 50% 65%,#35121e,#110b15 55%,#07060a)}
+#moon{position:absolute;top:7%;left:50%;width:clamp(75px,13vw,140px);aspect-ratio:1;border-radius:50%;transform:translateX(-50%);background:#6d1828;box-shadow:0 0 40px #a11a3655;opacity:.55}
+#moon:after{content:"";position:absolute;inset:8%;border:2px solid #bd344a;border-radius:50%;opacity:.6}
+#silhouette{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:clamp(95px,17vw,180px);height:68%;background:linear-gradient(90deg,#030305,#10090f 55%,#030305);clip-path:polygon(40% 0,60% 0,66% 13%,77% 21%,71% 36%,83% 57%,100% 100%,59% 100%,50% 67%,39% 100%,0 100%,22% 55%,30% 33%,27% 18%);filter:drop-shadow(0 0 18px #a31c35)}
+.eye{position:absolute;top:16%;width:7%;height:2%;background:#f52c49;box-shadow:0 0 12px #ff183f}
+.eye.left{left:39%}.eye.right{right:39%}
+#laneArea{position:absolute;inset:0;display:flex;justify-content:center;gap:clamp(5px,1.3vw,15px);padding:0 10px}
+.lane{position:relative;width:clamp(42px,8.4vw,86px);height:100%;background:#09070b66;border-left:1px solid #ffffff0c;border-right:1px solid #ffffff0c}
+.receptor{position:absolute;top:77%;left:50%;transform:translate(-50%,-50%);width:72%;aspect-ratio:1;border:3px solid var(--lane);border-radius:10px;display:grid;place-items:center;color:var(--lane);font-size:clamp(22px,4vw,40px);font-weight:900;text-shadow:0 0 10px var(--lane);background:#0a070bbd;box-shadow:0 0 13px color-mix(in srgb,var(--lane) 25%,transparent);z-index:2}
+.receptor.hit{background:color-mix(in srgb,var(--lane) 30%,#0a070b);transform:translate(-50%,-50%) scale(1.08)}
+.note{position:absolute;left:50%;width:72%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:10px;border:3px solid var(--lane);background:color-mix(in srgb,var(--lane) 24%,#100b13);color:var(--lane);display:grid;place-items:center;font-size:clamp(22px,4vw,40px);font-weight:900;box-shadow:0 0 18px color-mix(in srgb,var(--lane) 45%,transparent);z-index:3}
+#judgement{position:absolute;top:62%;left:50%;transform:translate(-50%,-50%);font-weight:1000;font-size:clamp(18px,3vw,30px);letter-spacing:.08em;text-shadow:2px 2px #080508;pointer-events:none}
+#bottomBar{height:12%;min-height:45px;display:flex;align-items:center;justify-content:center;gap:10px;border-top:1px solid #451622;background:#08060b}
+.keyHint{border:1px solid #4e2a37;background:#130c14;color:#bcaebc;padding:7px 10px;font-size:clamp(10px,1.3vw,13px)}
+#pause{position:absolute;inset:0;background:#050307eF;z-index:8;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+#pause.show{display:flex}
+#pause h2{font-size:clamp(30px,5vw,52px);margin:0;color:#f1e6ee}
+#toast{position:absolute;bottom:13%;left:50%;transform:translateX(-50%);font-size:12px;color:#e8cbd5;background:#170b14dd;border:1px solid #6e2235;padding:7px 12px;opacity:0;transition:opacity .15s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1}
+@media(max-width:600px){#frame{aspect-ratio:9/16;max-height:95vh;width:min(100%,440px)}.hud{height:12%}#bottomBar{height:10%}#silhouette{height:60%}.logo{font-size:clamp(44px,13vw,70px)}.menuButtons{width:78%}}
 </style>
 </head>
 <body>
-<div id="game">
-  <h1>THE AUTHOR</h1>
-  <div id="subtitle">WEEK 1 // THE ARRIVAL</div>
-  <div id="author">◉</div>
-  <div id="stats">
-    <span>UNINVITED</span><span id="score">SCORE: 0</span>
-    <span id="combo">COMBO: 0</span>
-  </div>
-  <div id="health"><div id="healthFill"></div></div>
-  <div id="lanes"></div>
-  <div id="message"></div>
-  <div id="start">
-    <h1>UNINVITED</h1>
-    <p>A presence is watching.</p>
-    <button id="play">BEGIN THE NIGHTMARE</button>
-    <p id="help">ARROW KEYS or A / S / W / D to hit notes</p>
-  </div>
+<div id="app"><main id="frame" aria-label="FNF The Author prototype">
+<section id="menu" class="screen active">
+<div class="eyebrow">A fan-made browser prototype</div>
+<h1 class="logo">THE AUTHOR</h1>
+<div class="subtitle">FRIDAY NIGHT FUNKIN' // WEEK 1: THE ARRIVAL</div>
+<div class="menuButtons">
+<button class="menuBtn" data-screen="story">STORY MODE</button>
+<button class="menuBtn" data-screen="freeplay">FREEPLAY</button>
+<button class="menuBtn" data-screen="options">OPTIONS</button>
+<button class="menuBtn" data-screen="credits">CREDITS</button>
 </div>
+<div class="small">A DARK RHYTHM PROTOTYPE · PRESS ENTER TO SELECT</div>
+</section>
+<section id="subMenu" class="screen">
+<h2 class="panelTitle" id="subTitle">STORY MODE</h2>
+<p class="panelText" id="subText"></p>
+<div class="subButtons" id="subButtons"></div>
+</section>
+<section id="game" class="screen">
+<header class="hud">
+<div class="trackName">THE ARRIVAL <span>THE AUTHOR — DEMO CHART</span></div>
+<div class="stats"><div id="score">SCORE: 0</div><div id="accuracy">HITS: 0 · MISSES: 0</div></div>
+</header>
+<div id="stage">
+<div id="moon"></div><div id="silhouette"><i class="eye left"></i><i class="eye right"></i></div>
+<div id="laneArea"></div>
+<div id="judgement">READY?</div><div id="toast"></div>
+<div id="pause"><h2>PAUSED</h2><button class="actionBtn" id="resumeBtn">RESUME</button><button class="actionBtn" id="restartBtn">RESTART SONG</button><button class="actionBtn" id="quitBtn">BACK TO MENU</button></div>
+</div>
+<div id="bottomBar"><span class="keyHint">← / A</span><span class="keyHint">↓ / S</span><span class="keyHint">↑ / W</span><span class="keyHint">→ / D</span><span class="keyHint">ESC: PAUSE</span></div>
+</section>
+<div id="grain"></div>
+</main></div>
 <script>
-const lanesEl = document.getElementById("lanes");
-const arrows = ["←","↓","↑","→"];
-const keys = ["ArrowLeft","ArrowDown","ArrowUp","ArrowRight"];
-const altKeys = ["a","s","w","d"];
-const lanes = [];
-const notes = [];
-let running = false, score = 0, combo = 0, health = 100;
-let startTime = 0, lastSpawn = 0, lastFrame = 0, raf = 0;
-let messageUntil = 0;
-
-arrows.forEach((arrow,i) => {
-  const lane = document.createElement("div");
-  lane.className = "lane";
-  const target = document.createElement("div");
-  target.className = "target";
-  target.textContent = arrow;
-  lane.appendChild(target);
-  lanesEl.appendChild(lane);
-  lanes.push(lane);
+(() => {
+const $ = id => document.getElementById(id);
+const screens = [...document.querySelectorAll('.screen')];
+const laneColors = ['#55dfff','#55ef9a','#d66aff','#ff526f'];
+const arrows = ['←','↓','↑','→'];
+let selected = 0, currentMenu = 'menu', subReturn = 'menu', songStart = 0, raf = 0;
+let notes = [], score = 0, hits = 0, misses = 0, combo = 0, paused = false, pauseAt = 0, finished = false;
+const menuItems = [...document.querySelectorAll('.menuBtn')];
+function showScreen(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));currentMenu=id;}
+menuItems.forEach((b,i)=>b.addEventListener('click',()=>openSub(b.dataset.screen)));
+function openSub(kind){
+subReturn='menu'; $('subTitle').textContent=kind==='story'?'STORY MODE':kind==='freeplay'?'FREEPLAY':kind==='options'?'OPTIONS':'CREDITS';
+const text={story:'Week 1: The Arrival. The road is empty, the sky is wrong, and something has noticed you. Start the demo chart when you are ready.',freeplay:'Choose the currently available demo track. More songs can be added as the chart and music assets are built.',options:'Prototype settings. Use the keyboard or click the on-screen controls are not available yet; browser audio can be added with a song file later.',credits:'FNF: THE AUTHOR is an unofficial fan-made browser prototype. Friday Night Funkin’ and its characters belong to their respective creators. This prototype uses original placeholder visuals and no official game assets.'};
+$('subText').textContent=text[kind];
+const btns=$('subButtons');btns.innerHTML='';
+if(kind==='story'||kind==='freeplay'){const start=document.createElement('button');start.className='actionBtn';start.textContent=kind==='story'?'START WEEK 1':'PLAY: THE ARRIVAL';start.onclick=()=>startGame();btns.append(start);}
+if(kind==='options'){const info=document.createElement('div');info.className='panelText';info.textContent='Controls: Arrow keys or A / S / W / D. Enter confirms menus. Escape pauses gameplay.';btns.append(info);}
+const back=document.createElement('button');back.className='actionBtn';back.textContent='BACK';back.onclick=()=>showScreen('menu');btns.append(back);showScreen('subMenu');
+}
+const laneArea=$('laneArea');
+laneColors.forEach((c,i)=>{const lane=document.createElement('div');lane.className='lane';lane.style.setProperty('--lane',c);lane.dataset.lane=i;const receptor=document.createElement('div');receptor.className='receptor';receptor.textContent=arrows[i];receptor.id='rec'+i;lane.append(receptor);laneArea.append(lane);});
+const beatMs=500, firstBeat=1800, chart=[];
+/* Original deterministic demo chart; each tuple is [beat, lane]. */
+[[0,0],[1,1],[2,2],[3,3],[4,0],[4.5,1],[5,2],[6,3],[7,2],[8,1],[8.5,0],[9,3],[10,0],[11,2],[12,1],[12.5,3],[13,0],[14,2],[15,1],[16,3],[16.5,2],[17,1],[18,0],[19,3],[20,2],[20.5,1],[21,0],[22,3],[23,2],[24,0],[24.5,3],[25,1],[26,2],[27,0],[28,1],[28.5,2],[29,3],[30,0],[31,1],[32,2],[33,3],[34,1],[35,0],[36,3],[36.5,2],[37,1],[38,0],[39,2],[40,3],[41,1],[42,0],[43,2],[44,1],[44.5,3],[45,0],[46,2],[47,3],[48,0],[48.5,1],[49,2],[50,3],[51,1],[52,0],[53,2],[54,3],[55,0],[56,1],[56.5,2],[57,3],[58,2],[59,1],[60,0],[61,3],[62,1],[63,2],[64,0]].forEach(([beat,lane])=>chart.push({time:firstBeat+beat*beatMs,lane,hit:false,missed:false,el:null}));
+const hitWindow=150, speed=.42, targetY=0.77;
+function resetSong(){
+cancelAnimationFrame(raf);notes=[];laneArea.querySelectorAll('.note').forEach(n=>n.remove());
+chart.forEach(n=>{n.hit=false;n.missed=false;n.el=null;notes.push(n);});
+score=0;hits=0;misses=0;combo=0;paused=false;finished=false;$('pause').classList.remove('show');$('judgement').textContent='GET READY';$('score').textContent='SCORE: 0';$('accuracy').textContent='HITS: 0 · MISSES: 0';
+}
+function startGame(){showScreen('game');resetSong();songStart=performance.now();raf=requestAnimationFrame(loop);}
+function elapsed(now){return now-songStart;}
+function spawnNote(n){if(n.el)return;const el=document.createElement('div');el.className='note';el.style.setProperty('--lane',laneColors[n.lane]);el.textContent=arrows[n.lane];laneArea.children[n.lane].append(el);n.el=el;}
+function loop(now){
+if(paused||currentMenu!=='game')return;
+const t=elapsed(now), stageH=$('stage').clientHeight, target=stageH*targetY;
+notes.forEach(n=>{
+if(n.hit||n.missed)return;
+const until=n.time-t;
+if(until<2600&&until>-500)spawnNote(n);
+if(n.el){const y=target-until*speed;n.el.style.top=y+'px';if(until < -hitWindow){n.missed=true;n.el.remove();n.el=null;misses++;combo=0;$('judgement').textContent='MISS';updateStats();}}
 });
-
-function say(text, duration=650) {
-  document.getElementById("message").textContent = text;
-  messageUntil = performance.now() + duration;
+if(t>firstBeat+64*beatMs+2500){finished=true;$('judgement').textContent='DEMO CLEAR';$('toast').textContent='Demo chart complete — press ESC to return to menu';$('toast').classList.add('show');return;}
+raf=requestAnimationFrame(loop);
 }
-
-function updateStats() {
-  document.getElementById("score").textContent = "SCORE: " + score;
-  document.getElementById("combo").textContent = "COMBO: " + combo;
-  document.getElementById("healthFill").style.width = health + "%";
+function updateStats(){$('score').textContent='SCORE: '+score;$('accuracy').textContent='HITS: '+hits+' · MISSES: '+misses+' · COMBO: '+combo;}
+function hitLane(lane){
+if(currentMenu!=='game'||paused||finished)return;
+const t=elapsed(performance.now());let best=null,dist=Infinity;
+notes.forEach(n=>{if(n.lane!==lane||n.hit||n.missed)return;const d=Math.abs(n.time-t);if(d<dist){dist=d;best=n;}});
+const receptor=$('rec'+lane);receptor.classList.add('hit');setTimeout(()=>receptor.classList.remove('hit'),90);
+if(best&&dist<=hitWindow){best.hit=true;if(best.el){best.el.remove();best.el=null;}hits++;combo++;score+=Math.max(50,Math.round(350*(1-dist/hitWindow)));$('judgement').textContent=dist<55?'SICK!':dist<100?'GOOD':'OK';updateStats();}
+else{$('judgement').textContent='MISS';misses++;combo=0;updateStats();}
 }
-
-function spawnNote(laneIndex, time) {
-  const el = document.createElement("div");
-  el.className = "note";
-  el.textContent = arrows[laneIndex];
-  lanes[laneIndex].appendChild(el);
-  notes.push({el, lane: laneIndex, time, hit: false});
+function togglePause(){if(currentMenu!=='game')return;if(!paused){paused=true;pauseAt=performance.now();cancelAnimationFrame(raf);$('pause').classList.add('show');}else{paused=false;songStart+=performance.now()-pauseAt;$('pause').classList.remove('show');raf=requestAnimationFrame(loop);}}
+$('resumeBtn').onclick=togglePause;$('restartBtn').onclick=startGame;$('quitBtn').onclick=()=>{cancelAnimationFrame(raf);showScreen('menu');};
+const keyLane={'ArrowLeft':0,'a':0,'A':0,'ArrowDown':1,'s':1,'S':1,'ArrowUp':2,'w':2,'W':2,'ArrowRight':3,'d':3,'D':3};
+document.addEventListener('keydown',e=>{
+if(keyLane[e.key]!==undefined){e.preventDefault();hitLane(keyLane[e.key]);return;}
+if(e.key==='Escape'){e.preventDefault();if(currentMenu==='game')togglePause();else if(currentMenu==='subMenu')showScreen('menu');return;}
+if(e.key==='Enter'){
+if(currentMenu==='menu'){openSub(menuItems[selected].dataset.screen);}
+else if(currentMenu==='subMenu'){const first=$('subButtons').querySelector('button');if(first)first.click();}
 }
-
-function hit(laneIndex) {
-  if (!running) return;
-  let best = null, distance = Infinity;
-  for (const note of notes) {
-    if (note.lane !== laneIndex || note.hit) continue;
-    const d = Math.abs(note.time - performance.now());
-    if (d < distance) { distance = d; best = note; }
-  }
-  if (best && distance < 180) {
-    best.hit = true;
-    best.el.remove();
-    score += distance < 75 ? 350 : distance < 130 ? 200 : 100;
-    combo++;
-    health = Math.min(100, health + 1);
-    say(distance < 75 ? "SICK!" : distance < 130 ? "GOOD!" : "OK!");
-    updateStats();
-  } else {
-    combo = 0;
-    say("MISS");
-    updateStats();
-  }
-}
-
-function frame(now) {
-  if (!running) return;
-  const dt = Math.min(50, now - (lastFrame || now));
-  lastFrame = now;
-  const elapsed = now - startTime;
-
-  if (elapsed - lastSpawn > 620) {
-    const laneIndex = Math.floor(Math.random() * 4);
-    spawnNote(laneIndex, now + 1150);
-    lastSpawn = elapsed;
-  }
-
-  for (let i = notes.length - 1; i >= 0; i--) {
-    const note = notes[i];
-    const targetY = lanes[note.lane].clientHeight * .74;
-    const travel = 1150 - (note.time - now);
-    note.el.style.top = (targetY - 21 - 0.74 * 0 + travel * .45) + "px";
-
-    if (now > note.time + 180 && !note.hit) {
-      note.el.remove();
-      notes.splice(i,1);
-      combo = 0;
-      health = Math.max(0, health - 7);
-      say("MISS");
-      updateStats();
-    }
-  }
-
-  if (now > messageUntil) document.getElementById("message").textContent = "";
-  if (health <= 0) {
-    running = false;
-    document.getElementById("start").style.display = "flex";
-    document.querySelector("#start h1").textContent = "YOU WERE ERASED";
-    document.querySelector("#start p").textContent = "The Author is still watching.";
-    document.getElementById("play").textContent = "TRY AGAIN";
-    return;
-  }
-  if (elapsed >= 45000) {
-    running = false;
-    document.getElementById("start").style.display = "flex";
-    document.querySelector("#start h1").textContent = "THE FIRST PAGE";
-    document.querySelector("#start p").textContent = "You survived... for now.";
-    document.getElementById("play").textContent = "PLAY AGAIN";
-    return;
-  }
-  raf = requestAnimationFrame(frame);
-}
-
-function begin() {
-  cancelAnimationFrame(raf);
-  notes.splice(0).forEach(n => n.el.remove());
-  score = 0; combo = 0; health = 100;
-  lastSpawn = 0; lastFrame = 0;
-  startTime = performance.now();
-  running = true;
-  updateStats();
-  document.getElementById("start").style.display = "none";
-  say("DON'T LOOK AWAY.", 1800);
-  raf = requestAnimationFrame(frame);
-}
-
-document.getElementById("play").addEventListener("click", begin);
-document.addEventListener("keydown", e => {
-  let index = keys.indexOf(e.key);
-  if (index < 0) index = altKeys.indexOf(e.key.toLowerCase());
-  if (index >= 0) { e.preventDefault(); hit(index); }
+if(currentMenu==='menu'&&(e.key==='ArrowUp'||e.key==='ArrowDown')){e.preventDefault();selected=(selected+(e.key==='ArrowDown'?1:-1)+menuItems.length)%menuItems.length;menuItems.forEach((b,i)=>b.style.outline=i===selected?'2px solid #e32636':'none');}
 });
+let toastTimer;
+window.addEventListener('blur',()=>{if(currentMenu==='game'&&!paused)togglePause();});
+})();
 </script>
 </body>
 </html>
